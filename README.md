@@ -1,51 +1,59 @@
-# All-in-One-Inventory-App
+# Stockroom
 
-Feature Guide
+**Stockroom** is a small-shop inventory and reorder workspace for independent makers, online sellers, and neighborhood retailers who are ready to move beyond spreadsheets—but do not need a full ERP.
 
-User Account & Onboarding
-What it does: Users create an account quickly using Google or Apple ID.
-How it works: Integrate Google and Apple authentication (use Firebase Auth or a similar service). Ask only for the essentials during sign-up.
-Make onboarding fun and interactive so users can set up their first inventories with ease. Connect app data to Hubspot CRM.
-Main Dashboard/Home Screen
-What it does: Shows a simple overview for each category: Fridge, Closet, Shoes, and Furniture.
-How it works: Make a clean main screen with clickable cards for each category. Each card shows a quick summary (like total items or alerts). Tapping a card takes users to that category’s detailed list.
-Add Items (for All Categories)
-What it does: Lets users add items in three ways: typing them in, scanning a barcode (for groceries), or taking/uploading a photo.
-How it works: Use the camera for barcode scanning (with ML Kit or ZXing). Allow photo uploads and filling in details for each item.
-Fridge: Name, food type, expiration date, amount, where it is (shelf/drawer).
-Closet: Name, type (e.g. shirt, dress), color, size, season, photo.
-Shoes: Name, brand, size, color, type, photo.
-Furniture: Name, room, type, year bought, condition, photo. Let users add similar items in bulk if needed.
-Edit, Delete, or Move Items
-What it does: Change item details, remove items, or move them to another category/location.
-How it works: Enable easy edit/delete functions. Use swipe or long-press in item lists.
-Inventory Categorization & Tagging
-What it does: Lets users sort and tag items with custom labels (for easy searching and organizing).
-How it works: Provide tagging/autocomplete. Allow users to make their own categories and tags.
-Search & Filtering
-What it does: Powerful search; find anything fast by category, tag, expiration, unused/worn, etc.
-How it works: Create a flexible search bar. Add filters that can be combined (like “all unworn red shirts”).
-Reminders & Notifications
-What it does: Reminds users when:
-Fridge items will expire
-Closet or shoes haven’t been worn recently
-Furniture needs care/maintenance
-How it works: Use local notifications that users can customize in Settings.
-Shopping & Restock Lists
-What it does: Makes shopping lists for missing/expiring fridge items; lets users make wishlists for clothes, shoes, or furniture.
-How it works: Users can add items to lists manually; app can auto-suggest based on what’s low or running out.
-Usage Stats & Analytics
-What it does: Shows stats: most/least used items, how much food is wasted, rarely used clothes/shoes, etc.
-How it works: Display these in simple dashboards with graphs or charts.
-Room/Location Management
-What it does: Lets users organize everything by rooms or locations.
-How it works: Users can create rooms/locations in the app and drag/drop or reassign items as needed.
-Sharing & Data Export
-What it does: Lets users share their inventories or lists with others (family/roommates) and export data as a CSV.
-How it works: Allow sharing through links or invites, and give an “export to email/CSV” option.
-App Settings
-What it does: Lets users set notification preferences, switch between light/dark theme, or manage their account.
-How it works: Provide a simple Settings page; save user preferences locally or in their profile.
-Pricing Model
-Free: The first three items in each category (Fridge, Closet, Shoes, Furniture) are completely free.
-Paid: To add more than three items in any category, users upgrade for just $5 per month.
+It is a researched pivot from the household-inventory concept in the original feature notes. The Reddit signals and the reasoning behind that choice are documented in [`docs/market-research.md`](docs/market-research.md).
+
+## What’s in the app
+
+- **Sign in and account creation** with server-side sessions, HTTP-only cookies, and password hashing.
+- **Private workspaces:** products, purchase orders, and movement history are always scoped to the signed-in user.
+- **At-a-glance dashboard:** stock value, units on hand, catalog size, low-stock watchlist, seven-day movement chart, recent changes, and weekly bestsellers.
+- **Product CRUD:** name, SKU, category, supplier, location, quantity, unit cost, reorder point, lead time, weekly sales pace, and a color/emoji marker.
+- **Stock adjustments:** record sales, deliveries, and count corrections; changes are logged in the activity history.
+- **Restock workflow:** create and edit draft/placed purchase orders, update their status, and receive an order to automatically add those units to stock.
+- **Useful details:** low-stock suggestions estimate a starting order quantity from the item's reorder point, weekly sales, and supplier lead time; export the catalog as CSV.
+- **Polished responsive UI:** sidebar navigation, search, mobile layouts, empty and loading states, optimistic product/stock/order updates, confirmation dialogs, and toast feedback.
+- **Seeded demo workspace:** realistic sample products, suppliers, open purchase orders, and recent stock movements.
+
+## Run locally
+
+Requirements: **Node.js 22.5+** (uses Node's built-in SQLite module).
+
+```bash
+npm install
+npm run dev
+```
+
+Open the Vite URL printed in the terminal. The web app uses the relative `/api` path; Vite proxies those requests to the Express API at port `4174`.
+
+### Demo sign-in
+
+Use **Explore the demo workspace** on the sign-in page, or sign in with:
+
+- Email: `demo@stockroom.app`
+- Password: `stockroom24`
+
+Demo data lives in `.data/stockroom.sqlite` and survives server restarts. Demo workspaces are shared by anyone using the demo account, so use a newly created account for private testing. The sample account is intentionally disposable.
+
+### Build and run the production bundle
+
+```bash
+npm run build
+npm start
+```
+
+The Express server serves the compiled `dist/` frontend and the API. Set `PORT` if your host supplies a port. SQLite is stored in `.data/` by default; mount a **persistent writable volume** there (or set `DATA_DIR`) in a deployment, otherwise data can be lost when the host replaces its filesystem. To disable public demo sign-in, set `DISABLE_DEMO=true`.
+
+See [`.env.example`](.env.example) for optional environment variables. For a public launch, add HTTPS, backups, operational monitoring, a production database/volume strategy, and a payment provider before accepting real customer data or subscriptions.
+
+## Monetization and validation
+
+A simple flat-price plan around **US$12 per shop per month** is a hypothesis to test with the Reddit-sampled seller segment, not a validated price or a promise of subscriber demand. This prototype does not collect payments. Interview sellers, observe their existing stock/reorder process, and secure a few paid design partners before investing in billing or channel integrations. If starting in Kenya, test KES pricing and local payment preferences first—the Reddit examples reviewed here do not establish local demand. See [`docs/market-research.md`](docs/market-research.md) for the Reddit threads, links, and caveats.
+
+## Stack
+
+- React 19 + Vite
+- Express 5 JSON API
+- SQLite via Node `node:sqlite`
+- Lucide icons and custom responsive CSS
